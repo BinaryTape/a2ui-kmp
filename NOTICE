@@ -1,10 +1,10 @@
 a2ui-kmp
 Sponsored by LittlePress.AI (https://littlepress.ai)
 
-This project builds the AndroidX A2UI libraries for Kotlin Multiplatform.
+This project builds Google's Agent-to-UI renderer for Jetpack Compose (A2UI) on Kotlin Multiplatform.
 
 source/a2ui/ and source/material3-a2ui/ are unmodified copies of the Android Open Source Project's
-platform/frameworks/support repository (see UPSTREAM), Copyright The Android Open Source Project,
+platform/frameworks/support repository (see source/UPSTREAM), Copyright The Android Open Source Project,
 licensed under the Apache License, Version 2.0.
 
 target/a2ui-kmp/a2ui-compat contains code derived from the Android Open Source Project, under the same license:

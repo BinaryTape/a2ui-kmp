@@ -41,8 +41,9 @@ configure<com.vanniktech.maven.publish.MavenPublishBaseExtension> {
     pom {
         name.set("A2UI for Kotlin Multiplatform: ${project.name}")
         description.set(
-            "Unofficial Kotlin Multiplatform build of AndroidX A2UI $upstreamRelease (desktop JVM and iOS); " +
-                "on Android it resolves to the official androidx.a2ui artifacts. Sponsored by LittlePress.AI."
+            "Google's Agent-to-UI renderer for Jetpack Compose (A2UI) $upstreamRelease on Kotlin Multiplatform " +
+                "(desktop JVM and iOS); on Android it resolves to Google's androidx.a2ui artifacts. " +
+                "Unofficial, sponsored by LittlePress.AI."
         )
         url.set(repoUrl)
         inceptionYear.set("2026")

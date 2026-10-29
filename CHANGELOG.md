@@ -37,7 +37,7 @@ Upstream: androidx.a2ui 1.0.0-alpha02 (2026-10-21), commit `e0a272dcae2b`. Synce
   `scripts/generate-overlays.py` records the upstream file's hash and fails when it changes.
 - `A2uiBasicCatalogV1.Functions(context)`: on desktop and iOS the Context is ours and opens URLs
   with the platform; on Android it is android.content.Context, so common code cannot call it there.
-- Android variants forward to the official AndroidX artifacts. `a2ui-compat` supplies `Locale`
+- Android variants forward to Google's artifacts. `a2ui-compat` supplies `Locale`
   for common code.
 
 ### How each upstream file is built

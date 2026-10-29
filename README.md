@@ -1,21 +1,21 @@
 # a2ui-kmp
 
-Kotlin Multiplatform builds of [AndroidX A2UI](https://developer.android.com/develop/ui/compose/agentic),
-the Jetpack Compose renderer for the [A2UI](https://a2ui.org) protocol, for desktop (JVM) and iOS.
-The builds reuse AndroidX sources with a platform compatibility layer; Android uses Google's
-official artifacts. Not affiliated with Google.
+Google's [Agent-to-UI renderer for Jetpack Compose](https://developer.android.com/develop/ui/compose/agentic)
+([A2UI](https://a2ui.org)) on Kotlin Multiplatform: the same library and API on Android, desktop (JVM)
+and iOS. On Android you get Google's own artifacts; for desktop and iOS it is built from Google's
+sources.
 
-Sponsored by [LittlePress.AI](https://littlepress.ai).
+Sponsored by [LittlePress.AI](https://littlepress.ai). Not affiliated with Google.
 
 > **Not on Maven Central yet.** The first release, `1.0.0-alpha02`, is being prepared. Until it is
 > published, build the artifacts locally (see [DEVELOPMENT.md](DEVELOPMENT.md)).
 
 ## Versions
 
-Each release follows one [AndroidX A2UI release](https://developer.android.com/jetpack/androidx/releases/a2ui)
-and has the same version number, built from that release's sources: `1.0.0-alpha02` is AndroidX
-A2UI `1.0.0-alpha02` (see [source/UPSTREAM](source/UPSTREAM) and [CHANGELOG.md](CHANGELOG.md)).
-We keep following AndroidX A2UI until Google publishes it for Kotlin Multiplatform itself. The API is Google's, in the same `androidx.a2ui.*` packages; common
+Versions match [Google's releases](https://developer.android.com/jetpack/androidx/releases/a2ui):
+`1.0.0-alpha02` is built from Google's `1.0.0-alpha02` (see [source/UPSTREAM](source/UPSTREAM) and
+[CHANGELOG.md](CHANGELOG.md)). We will keep following them until Google publishes A2UI for
+Kotlin Multiplatform itself. The API is Google's, in the same `androidx.a2ui.*` packages; common
 code differs from Android code in two places only (see [Platforms](#platforms)).
 
 ## Declaring dependencies
@@ -68,9 +68,8 @@ Until the first release is on Maven Central, build the artifacts locally (see
 
 ## Platforms
 
-- **Android:** `ai.littlepress.a2ui:<artifact>` resolves to the official AndroidX artifact of the same
-  version, the way JetBrains publishes its multiplatform AndroidX libraries. Android apps run
-  Google's code.
+- **Android:** `ai.littlepress.a2ui:<artifact>` resolves to Google's artifact of the same version,
+  the way JetBrains publishes its multiplatform Jetpack libraries. Android apps run Google's code.
 - **Desktop (JVM) and iOS:** Google's sources, compiled for these platforms. Where they use Android
   or JDK APIs, they call our equivalents, built to behave as Android does. Besides running
   upstream's own unit and UI tests on desktop, the build checks plural rules, number, currency and
