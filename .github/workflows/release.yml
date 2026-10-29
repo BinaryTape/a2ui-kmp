@@ -1,0 +1,89 @@
+# Pushing tag v<version> publishes that version. CI (ci.yml, including the Android device tests)
+# runs on the tagged commit first; only if it passes are the artifacts uploaded to Maven Central and
+# a draft GitHub release created, whose notes are the version's CHANGELOG.md entry. A maintainer
+# then releases the uploads in the Central Portal (that cannot be undone) and publishes the draft.
+# There are two uploads, one per build: target/a2ui-kmp (every package but material3) and target/material3-a2ui-kmp.
+# The tag must match a2uiKmp in gradle/libs.versions.toml. The upload builds the committed tree
+# (CI has checked that its generated overlays are current) and does not regenerate anything.
+#
+# Secrets of the "release" environment (so only this job can read them; a required reviewer on the
+# environment approves each run): MAVEN_CENTRAL_USERNAME and MAVEN_CENTRAL_PASSWORD (a Central
+# Portal user token for the ai.littlepress namespace), SIGNING_KEY (ASCII-armored private GPG key)
+# and SIGNING_KEY_PASSWORD.
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  # Fails in seconds, before the long CI run, if the tag does not name the built version or the
+  # changelog entry is missing or out of date.
+  changelog:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - env:
+          TAG: ${{ github.ref_name }}
+        run: python3 scripts/release-notes.py "${TAG#v}"
+
+  ci:
+    needs: changelog
+    uses: ./.github/workflows/ci.yml
+
+  release:
+    needs: ci
+    runs-on: macos-26
+    timeout-minutes: 60
+    environment: release
+    permissions:
+      contents: write
+    env:
+      TAG: ${{ github.ref_name }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version-file: .java-version
+      - uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
+
+      - name: Release notes from the changelog entry
+        run: python3 scripts/release-notes.py "${TAG#v}" > "$RUNNER_TEMP/notes.md"
+
+      - name: Publishing secrets are set
+        env:
+          MAVEN_CENTRAL_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          MAVEN_CENTRAL_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+          SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
+        run: |
+          for name in MAVEN_CENTRAL_USERNAME MAVEN_CENTRAL_PASSWORD SIGNING_KEY SIGNING_KEY_PASSWORD; do
+            [ -n "${!name}" ] || { echo "::error::Secret $name is not set."; exit 1; }
+          done
+
+      - name: Upload to Maven Central (released by hand in the Central Portal)
+        env:
+          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.SIGNING_KEY }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.SIGNING_KEY_PASSWORD }}
+        run: |
+          # target/material3-a2ui-kmp builds on the other packages from build/repo, so target/a2ui-kmp goes first.
+          ./gradlew -p target/a2ui-kmp publishAllPublicationsToLocalRepository publishToMavenCentral
+          ./gradlew -p target/material3-a2ui-kmp publishToMavenCentral
+
+      - name: Draft GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          prerelease=""
+          case "$TAG" in *-*) prerelease="--prerelease" ;; esac
+          gh release create "$TAG" --verify-tag --title "$TAG" --notes-file "$RUNNER_TEMP/notes.md" --draft $prerelease

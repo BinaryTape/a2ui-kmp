@@ -1,0 +1,23 @@
+a2ui-kmp
+Sponsored by LittlePress.AI (https://littlepress.ai)
+
+This project builds the AndroidX A2UI libraries for Kotlin Multiplatform.
+
+source/a2ui/ and source/material3-a2ui/ are unmodified copies of the Android Open Source Project's
+platform/frameworks/support repository (see UPSTREAM), Copyright The Android Open Source Project,
+licensed under the Apache License, Version 2.0.
+
+target/a2ui-kmp/a2ui-compat contains code derived from the Android Open Source Project, under the same license:
+- androidx/core/util/PatternsCompat (androidx.core), in PatternsCompat.kt
+- android.util.JsonReader, in JsonReader.kt
+- resource locale matching from platform/frameworks/base libs/androidfw (ResourceTypes.cpp,
+  LocaleData.cpp), in ResourceLocales.kt, with the tables of LocaleDataTables.cpp generated into
+  LocaleDataTables.kt
+
+target/a2ui-kmp/a2ui-compat contains data generated from the Unicode Common Locale Data Repository (CLDR 45),
+Copyright Unicode, Inc., under the Unicode License v3 (https://www.unicode.org/license.txt):
+plural rules (CldrPluralRules.kt). The identifier character table (IdentifierChars.kt), the
+numbering system table (AndroidNumbering.kt) and the date and time patterns
+(AndroidDatePatterns.kt) were recorded from Android 15.
+
+The rest of target/, samples/, scripts/ and tests/ are licensed under the Apache License, Version 2.0 (LICENSE).

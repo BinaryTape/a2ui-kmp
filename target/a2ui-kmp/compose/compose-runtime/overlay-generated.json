@@ -1,0 +1,33 @@
+{
+  "androidx/a2ui/compose/runtime/A2uiComponentProperties.kt": {
+    "upstreamSha256": "f539900e9eb70a4a04ff4239b6b452c19c6355102d40499dd078f99d51b1b5b9",
+    "rules": [
+      "jvm-default-imports"
+    ]
+  },
+  "androidx/a2ui/compose/runtime/A2uiComponentRegistry.kt": {
+    "upstreamSha256": "f422ade5b692054796ef479f1870b566bab4bd3721db3c63962b63a9cb5c04bc",
+    "rules": [
+      "platform-imports"
+    ]
+  },
+  "androidx/a2ui/compose/runtime/A2uiDataModel.kt": {
+    "upstreamSha256": "1496ae1ab0b73e4fc761ec1384376910db7f4662f1606d02bcf2275e2c8518e1",
+    "rules": [
+      "platform-imports"
+    ]
+  },
+  "androidx/a2ui/compose/runtime/A2uiMessageParser.kt": {
+    "upstreamSha256": "0751e13c4bcdfcbf601dcd013ed903af07a3547fea3d08cfae37cd3341a0ed74",
+    "rules": [
+      "platform-imports"
+    ]
+  },
+  "androidx/a2ui/compose/runtime/A2uiProperty.kt": {
+    "upstreamSha256": "4cd942dfa35d5aae0b541776709c9891163eb0619ac6fa34715dc4de4406ad80",
+    "rules": [
+      "platform-imports",
+      "jvm-default-imports"
+    ]
+  }
+}

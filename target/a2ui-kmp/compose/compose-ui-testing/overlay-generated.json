@@ -1,0 +1,8 @@
+{
+  "androidx/a2ui/compose/ui/testing/A2uiTestControllerImpl.kt": {
+    "upstreamSha256": "32f64712a85689fd8d505557b571bbd5f259e91adae944b59b5764133622a20a",
+    "rules": [
+      "platform-imports"
+    ]
+  }
+}

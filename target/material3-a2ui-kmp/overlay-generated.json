@@ -1,0 +1,28 @@
+{
+  "androidx/compose/material3/a2ui/MaterialA2uiDefaults.kt": {
+    "upstreamSha256": "18b7c9101701bd0f1f0398819d9c08fb6ab3acdb725e42d14dad22025fa54cc2",
+    "rules": [
+      "compose-imports"
+    ]
+  },
+  "androidx/compose/material3/a2ui/catalog/MaterialA2uiBasicCatalogV1Button.kt": {
+    "upstreamSha256": "017f20aa6479f8ff2736bc172d1c4daa7b9986d35bdc4d44b935c1bb6971fa09",
+    "rules": [
+      "compose-imports"
+    ]
+  },
+  "androidx/compose/material3/a2ui/catalog/MaterialA2uiBasicCatalogV1ChoicePicker.kt": {
+    "upstreamSha256": "2d091540c5f9585a32c97ee5eb18e5aa1173c7ab8f94b0c36effcd02fb9088fd",
+    "rules": [
+      "compose-imports"
+    ]
+  },
+  "androidx/compose/material3/a2ui/catalog/MaterialA2uiBasicCatalogV1DateTimeInput.kt": {
+    "upstreamSha256": "4810d9486042f8c4ad6ad6b64d21b6e85023a1c00e912d3a7d223680831010ac",
+    "rules": [
+      "platform-imports",
+      "compose-imports",
+      "platform-locale"
+    ]
+  }
+}

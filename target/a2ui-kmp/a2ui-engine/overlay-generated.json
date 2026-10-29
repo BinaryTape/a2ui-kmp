@@ -1,0 +1,53 @@
+{
+  "androidx/a2ui/engine/catalog/A2uiCoreCatalog.kt": {
+    "upstreamSha256": "57a1aa3f2bfef8080c0c411b92f6d885eec34b612193768a68dc6c2afcfdfe49",
+    "rules": [
+      "kotlin-jvm-imports"
+    ]
+  },
+  "androidx/a2ui/engine/catalog/A2uiCoreCatalogSerializer.kt": {
+    "upstreamSha256": "e89826aa44b2f246248360bf39e323438fe66ca05d996f9782d4576e5c6b02b4",
+    "rules": [
+      "jvm-default-imports"
+    ]
+  },
+  "androidx/a2ui/engine/catalog/A2uiCoreComponentDefinition.kt": {
+    "upstreamSha256": "9b2c32769cec9a41b1d8b9678225718e33ba334e13b4836687a09a9e8a6b91ee",
+    "rules": [
+      "kotlin-jvm-imports"
+    ]
+  },
+  "androidx/a2ui/engine/catalog/A2uiCoreComponentDefinitionCollection.kt": {
+    "upstreamSha256": "a4c5e0596e834219ad102513de6161b8e107de081f06bfcd01e12fa6fcc9cd78",
+    "rules": [
+      "kotlin-jvm-imports"
+    ]
+  },
+  "androidx/a2ui/engine/catalog/A2uiCoreComponentDefinitionSerializer.kt": {
+    "upstreamSha256": "d7772a387e244ba07081f26cd6b313e226cfdc236a608ecffce75601fa460ace",
+    "rules": [
+      "class-java-simple-name",
+      "kotlin-jvm-imports"
+    ]
+  },
+  "androidx/a2ui/engine/model/A2uiCoreSurfaceModel.kt": {
+    "upstreamSha256": "fab328dbe4104866cd52fb93fd1dfd4fb94cb8eccfd17f8ddad3ab7242a3e933",
+    "rules": [
+      "platform-imports",
+      "jvm-default-imports",
+      "kotlin-jvm-imports"
+    ]
+  },
+  "androidx/a2ui/engine/processor/A2uiCoreMessageProcessor.kt": {
+    "upstreamSha256": "7e1d509ef42cf495388f0344cf077a30d71f195eb41609e77b4d45106aeaa69c",
+    "rules": [
+      "platform-imports"
+    ]
+  },
+  "androidx/a2ui/engine/processor/A2uiCoreSurfaceActor.kt": {
+    "upstreamSha256": "cda4c8362ee563556eb7b3cca7184e6f9cd6a5e1cff7fd452dda207998af4cbc",
+    "rules": [
+      "platform-imports"
+    ]
+  }
+}

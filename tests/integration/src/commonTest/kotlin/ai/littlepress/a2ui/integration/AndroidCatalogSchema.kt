@@ -1,0 +1,5 @@
+package ai.littlepress.a2ui.integration
+
+// Recorded from ComposeUiTest on an Android 15 emulator (API 35), official compose-ui artifact.
+internal const val ANDROID_CATALOG_SCHEMA: String =
+    "{\"\$schema\":\"https://json-schema.org/draft/2020-12/schema\",\"\$id\":\"https://example.com/consumer-catalog.json\",\"catalogId\":\"https://example.com/consumer-catalog.json\",\"components\":{\"Label\":{\"type\":\"object\",\"properties\":{\"component\":{\"type\":\"string\",\"const\":\"Label\"},\"variant\":{\"type\":\"string\",\"description\":\"Text style\"},\"icon\":{\"\$ref\":\"common_types.json#/\$defs/ComponentId\",\"description\":\"An icon before the text\"},\"text\":{\"type\":\"string\",\"description\":\"The text to show\"},\"bold\":{\"type\":\"boolean\"},\"onTap\":{\"\$ref\":\"common_types.json#/\$defs/Action\"},\"data\":{}},\"required\":[\"component\",\"text\"],\"description\":\"Shows a line of text\"}},\"functions\":{},\"\$defs\":{\"anyComponent\":{\"oneOf\":[{\"\$ref\":\"#/components/Label\"}],\"discriminator\":{\"propertyName\":\"component\"}},\"anyFunction\":{\"oneOf\":[]}}}"

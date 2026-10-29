@@ -1,0 +1,6 @@
+# The AndroidX commit source/a2ui/ and source/material3-a2ui/ are synced from (scripts/sync-upstream.py).
+repository=https://android.googlesource.com/platform/frameworks/support
+mirror=https://github.com/androidx/androidx
+commit=e0a272dcae2b353b23a075af10baeda8f3021bcd
+release=androidx.a2ui 1.0.0-alpha02 (2026-10-21)
+paths=a2ui:source/a2ui compose/material3/material3-a2ui:source/material3-a2ui

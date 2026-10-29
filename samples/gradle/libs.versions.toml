@@ -1,0 +1,25 @@
+[versions]
+# The a2ui-kmp version this sample uses. a2ui-kmp's scripts/sync-upstream.py sets it to the version
+# being released, and scripts/verify-samples.sh fails if the two differ.
+a2ui = "1.0.0-alpha02"
+# material3-a2ui needs Compose Multiplatform 1.13, which needs Kotlin 2.4 (a2ui-kmp's README, "Requirements").
+kotlin = "2.4.0"
+composeMultiplatform = "1.13.0-beta01"
+kotlinxCoroutines = "1.10.2"
+
+[libraries]
+# The Material 3 catalog, and everything below it (sample.material3).
+a2ui-material3-kmp = { module = "ai.littlepress.a2ui:material3-a2ui", version.ref = "a2ui" }
+# The renderer and catalog API without Material 3, for your own components (sample.custom). On its own
+# it needs only Kotlin 2.3 and Compose Multiplatform 1.12; material3-a2ui includes it.
+a2ui-compose-ui-kmp = { module = "ai.littlepress.a2ui:compose-ui", version.ref = "a2ui" }
+# This app's own UI around the surfaces.
+compose-material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "composeMultiplatform" }
+compose-ui-test = { module = "org.jetbrains.compose.ui:ui-test", version.ref = "composeMultiplatform" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
+kotlinx-coroutines-swing = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-swing", version.ref = "kotlinxCoroutines" }
+
+[plugins]
+kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+compose-multiplatform = { id = "org.jetbrains.compose", version.ref = "composeMultiplatform" }

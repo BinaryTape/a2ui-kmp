@@ -1,0 +1,297 @@
+{
+  "androidx/a2ui/model/catalog/A2uiFunction.kt": {
+    "upstreamSha256": "f5a2546bfaa037714f47d072637db8cbaf1d6ea3254696635ac9887260c69a08",
+    "rules": [
+      "kotlin-jvm-imports"
+    ]
+  },
+  "androidx/a2ui/model/catalog/A2uiFunctionCollection.kt": {
+    "upstreamSha256": "5e2d3e0ccdabc02249294127f07131ae4c4e336139c16eb36ed9e228f4ad4724",
+    "rules": [
+      "kotlin-jvm-imports"
+    ]
+  },
+  "androidx/a2ui/model/catalog/A2uiFunctionDefinition.kt": {
+    "upstreamSha256": "b29eed8c57b1b0859b26a093407893a0ac8caf701382b7d6bdcd6a3f40b8ec00",
+    "rules": [
+      "kotlin-jvm-imports"
+    ]
+  },
+  "androidx/a2ui/model/catalog/A2uiFunctionDefinitionSerializer.kt": {
+    "upstreamSha256": "744c2c4465d687916ae47bcb72412bfb9a15895c6a420dc2f6489b24b97be827",
+    "rules": [
+      "kotlin-jvm-imports"
+    ]
+  },
+  "androidx/a2ui/model/catalog/basiccatalog/A2uiBasicCatalogFunctions.kt": {
+    "upstreamSha256": "6cf950d63cda66a6a80caff2b58596e23f4fe28c68aa4d570a152eb14457d62d",
+    "rules": [
+      "kotlin-jvm-imports"
+    ]
+  },
+  "androidx/a2ui/model/catalog/functions/A2uiAndFunction.kt": {
+    "upstreamSha256": "09eaf7564203f249647592d36e8e760cc47598b8ccd499207512e2b734b564fb",
+    "rules": [
+      "kotlin-jvm-imports"
+    ]
+  },
+  "androidx/a2ui/model/catalog/functions/A2uiEmailFunction.kt": {
+    "upstreamSha256": "f9fb1e435366a36c0a639d1fe22620d15def7f36142b824ed9ddd7288ba4d7ee",
+    "rules": [
+      "platform-imports",
+      "kotlin-jvm-imports"
+    ]
+  },
+  "androidx/a2ui/model/catalog/functions/A2uiFormatCurrencyFunction.kt": {
+    "upstreamSha256": "ca491ff9118fca2c7cbf4ac7f19c4f42cdd1aea02b388094e7caed4b8412fca0",
+    "rules": [
+      "platform-imports",
+      "kotlin-jvm-imports"
+    ]
+  },
+  "androidx/a2ui/model/catalog/functions/A2uiFormatDateFunction.kt": {
+    "upstreamSha256": "0a7a37d9d849c8987f1b2023b42bed38ec9821ea21bf2e2b80ceb9aa9c9237cd",
+    "rules": [
+      "platform-imports",
+      "locale-constants",
+      "kotlin-jvm-imports"
+    ]
+  },
+  "androidx/a2ui/model/catalog/functions/A2uiFormatNumberFunction.kt": {
+    "upstreamSha256": "042f80aaa99ced917ce6ccfa8767cec9a4691c7094f57a614eeea7f89c4eddb2",
+    "rules": [
+      "platform-imports",
+      "kotlin-jvm-imports"
+    ]
+  },
+  "androidx/a2ui/model/catalog/functions/A2uiFormatStringFunction.kt": {
+    "upstreamSha256": "91c7908e4c43c5c9336f9e0f8d91a000abb9b77f0db9fc9b92017785144c37e8",
+    "rules": [
+      "platform-imports",
+      "jvm-default-imports",
+      "kotlin-jvm-imports"
+    ]
+  },
+  "androidx/a2ui/model/catalog/functions/A2uiFunctionArgParser.kt": {
+    "upstreamSha256": "6d7d0cb85e78f9e9ab0b22340b35b1dc070fe90468c1761a4a2366135bc01769",
+    "rules": [
+      "platform-imports",
+      "locale-constants",
+      "kotlin-jvm-imports"
+    ]
+  },
+  "androidx/a2ui/model/catalog/functions/A2uiLengthFunction.kt": {
+    "upstreamSha256": "eaed2f40aacbd69a50e279ce6b4c869914ca2ad700cab367aa4a1e0fe25ccb86",
+    "rules": [
+      "kotlin-jvm-imports"
+    ]
+  },
+  "androidx/a2ui/model/catalog/functions/A2uiLocaleProvider.kt": {
+    "upstreamSha256": "853b42222d1e88dd0e5bf6bd954d862408d896d946232112fbf3d0a7eedcbd4b",
+    "rules": [
+      "platform-imports",
+      "locale-constants",
+      "kotlin-jvm-imports"
+    ]
+  },
+  "androidx/a2ui/model/catalog/functions/A2uiNotFunction.kt": {
+    "upstreamSha256": "4d0a526d03721d19e78d6fd712cd76a6530175f8b3a96e7951dfa00904761cd6",
+    "rules": [
+      "kotlin-jvm-imports"
+    ]
+  },
+  "androidx/a2ui/model/catalog/functions/A2uiNumericFunction.kt": {
+    "upstreamSha256": "397c839c257a18567a3b34a8621abb94b51e6b5ae1c07c22573c05afc96e1915",
+    "rules": [
+      "kotlin-jvm-imports"
+    ]
+  },
+  "androidx/a2ui/model/catalog/functions/A2uiOrFunction.kt": {
+    "upstreamSha256": "f137b8c1c7c2467f9ed874105d3e6f0b37b48fde8e6e13887445e9f8fda1f598",
+    "rules": [
+      "kotlin-jvm-imports"
+    ]
+  },
+  "androidx/a2ui/model/catalog/functions/A2uiPluralizeFunction.kt": {
+    "upstreamSha256": "61f584e344a67b3712d1644d8ce44659c7318c1594feb2855febf140b551c29d",
+    "rules": [
+      "platform-imports",
+      "kotlin-jvm-imports"
+    ]
+  },
+  "androidx/a2ui/model/catalog/functions/A2uiRegexFunction.kt": {
+    "upstreamSha256": "097a00af7ea9520f63c15f1c5bad6e528e82d4396487afce486afa719c006431",
+    "rules": [
+      "kotlin-jvm-imports"
+    ]
+  },
+  "androidx/a2ui/model/catalog/functions/A2uiRequiredFunction.kt": {
+    "upstreamSha256": "9cad10ca0d712f0decb2686c66c7d7b117390fd5f4bfec55f8b1339c248384ab",
+    "rules": [
+      "kotlin-jvm-imports"
+    ]
+  },
+  "androidx/a2ui/model/processor/A2uiMessageProcessor.kt": {
+    "upstreamSha256": "e65a4627e419362036ec71cc25aca4f9951d0771453bdb257328b09c467c42da",
+    "rules": [
+      "kotlin-jvm-imports"
+    ]
+  },
+  "androidx/a2ui/model/protocol/A2uiClientCapabilities.kt": {
+    "upstreamSha256": "4054ba62d63bb63e0501c4565ab328af538103b9e91b69816d4e1784517d5952",
+    "rules": [
+      "kotlin-jvm-imports"
+    ]
+  },
+  "androidx/a2ui/model/protocol/A2uiClientToServerMessage.kt": {
+    "upstreamSha256": "446c1e1db623bfe8df4496574dd668f944ec6c69e602edd344b7fc67cd1d8a37",
+    "rules": [
+      "platform-imports",
+      "locale-constants"
+    ]
+  },
+  "androidx/a2ui/model/protocol/A2uiException.kt": {
+    "upstreamSha256": "dc3a3c91d2933c48dc40222a29fad058c0fd131d195b0a107c411e788746dad7",
+    "rules": [
+      "jvm-default-imports"
+    ]
+  },
+  "androidx/a2ui/model/protocol/A2uiServerToClientMessage.kt": {
+    "upstreamSha256": "63ddccf0f6fbd31e75a76ce463beb3fc4bd3122d3e2f6f3f568e09513657ffb8",
+    "rules": [
+      "kotlin-jvm-imports"
+    ]
+  },
+  "androidx/a2ui/model/schema/A2uiAnySchema.kt": {
+    "upstreamSha256": "8600f60bcb56f3ab3456d3e291fad70fa5ea71e2dff61d0da043c5753acdf7d9",
+    "rules": [
+      "kotlin-jvm-imports"
+    ]
+  },
+  "androidx/a2ui/model/schema/A2uiArraySchema.kt": {
+    "upstreamSha256": "6d51e7f4a3337da80ae9dc6c9cc6cc05e6187c69185966a70fdadfcda86aac9a",
+    "rules": [
+      "kotlin-jvm-imports"
+    ]
+  },
+  "androidx/a2ui/model/schema/A2uiBooleanSchema.kt": {
+    "upstreamSha256": "518a75caeb13dc048794ee65138e2a7655fea2f75e38264ae2617122790d1645",
+    "rules": [
+      "kotlin-jvm-imports"
+    ]
+  },
+  "androidx/a2ui/model/schema/A2uiNumberSchema.kt": {
+    "upstreamSha256": "20b8386e73109fbaea5aad7c4ee61e933875727c6c517d354852c442a15cfa4e",
+    "rules": [
+      "kotlin-jvm-imports"
+    ]
+  },
+  "androidx/a2ui/model/schema/A2uiObjectSchema.kt": {
+    "upstreamSha256": "6e11581ceb70cf3e07ef7fee03ee78f3ff4126107e86b8afe1064cbcb22a852d",
+    "rules": [
+      "kotlin-jvm-imports"
+    ]
+  },
+  "androidx/a2ui/model/schema/A2uiRefSchema.kt": {
+    "upstreamSha256": "f5596423416e17621c6c33c4cde3b46e59a0341fffad3f4faaf448a86b91b020",
+    "rules": [
+      "kotlin-jvm-imports"
+    ]
+  },
+  "androidx/a2ui/model/schema/A2uiSchema.kt": {
+    "upstreamSha256": "2ba179fd377072c76bd1365ce188f2bb226df9ac78bbb025dc877e53bfe70106",
+    "rules": [
+      "jvm-default-imports"
+    ]
+  },
+  "androidx/a2ui/model/schema/A2uiStringSchema.kt": {
+    "upstreamSha256": "211a594099510f2b72f55e6f695e2bff0abd47d8dada3458e8a8880afee49787",
+    "rules": [
+      "kotlin-jvm-imports"
+    ]
+  },
+  "androidx/a2ui/model/schema/commontypes/A2uiAccessibilityAttributesSchema.kt": {
+    "upstreamSha256": "d2b0c673a3ad76d747c46d9dd475136955336a1f3b87faa82e48d21add15cf3e",
+    "rules": [
+      "kotlin-jvm-imports"
+    ]
+  },
+  "androidx/a2ui/model/schema/commontypes/A2uiActionSchema.kt": {
+    "upstreamSha256": "d9118da26e9b09f4795ecb8446771dcb6258fdcab2621106f71279095e9f8eab",
+    "rules": [
+      "kotlin-jvm-imports"
+    ]
+  },
+  "androidx/a2ui/model/schema/commontypes/A2uiCheckRuleSchema.kt": {
+    "upstreamSha256": "7ac3d37a614cf73b18c01ec8cfd90f1fbd98649b586584c0a85e95f8b2efe7b1",
+    "rules": [
+      "kotlin-jvm-imports"
+    ]
+  },
+  "androidx/a2ui/model/schema/commontypes/A2uiCheckableSchema.kt": {
+    "upstreamSha256": "99a0d3bd5ab3f4d143bc5fbc48233d50c2dcddbcab481c475478dc77ae4b702c",
+    "rules": [
+      "kotlin-jvm-imports"
+    ]
+  },
+  "androidx/a2ui/model/schema/commontypes/A2uiChildListSchema.kt": {
+    "upstreamSha256": "324c6c71dd5f249e031896dcc745ef6d4de17a3d41c71932f07919b5a44691ed",
+    "rules": [
+      "kotlin-jvm-imports"
+    ]
+  },
+  "androidx/a2ui/model/schema/commontypes/A2uiComponentCommonSchema.kt": {
+    "upstreamSha256": "2f193ba9f7ead8a1bd4644dfc88af4ad1f16962eac414d4420e71935a10e8cc6",
+    "rules": [
+      "kotlin-jvm-imports"
+    ]
+  },
+  "androidx/a2ui/model/schema/commontypes/A2uiComponentIdSchema.kt": {
+    "upstreamSha256": "533cbd33923990ab2110cc008f1d574d932f6cf2d2ff4fc1ef3ec840441dff1c",
+    "rules": [
+      "kotlin-jvm-imports"
+    ]
+  },
+  "androidx/a2ui/model/schema/commontypes/A2uiDataBindingSchema.kt": {
+    "upstreamSha256": "4da6f1cbeedcbd329e3560ae52a1cea79f1bb80af80f5eca2c66f6e855ca29ee",
+    "rules": [
+      "kotlin-jvm-imports"
+    ]
+  },
+  "androidx/a2ui/model/schema/commontypes/A2uiDynamicBooleanSchema.kt": {
+    "upstreamSha256": "95c909948db554f980ef8b0e7b78eff40a3a8ac14b26f453e4a954dae45b6e9e",
+    "rules": [
+      "kotlin-jvm-imports"
+    ]
+  },
+  "androidx/a2ui/model/schema/commontypes/A2uiDynamicNumberSchema.kt": {
+    "upstreamSha256": "e3485046d33211085c692bab148346fd3e498dfd65593bfce323a681e0898da0",
+    "rules": [
+      "kotlin-jvm-imports"
+    ]
+  },
+  "androidx/a2ui/model/schema/commontypes/A2uiDynamicStringListSchema.kt": {
+    "upstreamSha256": "35968e8efd5d8ba94fef20a60f4d17866d0deb6885bd9523f3c4ff89c0ed4848",
+    "rules": [
+      "kotlin-jvm-imports"
+    ]
+  },
+  "androidx/a2ui/model/schema/commontypes/A2uiDynamicStringSchema.kt": {
+    "upstreamSha256": "6f2f2b4e00e5958ae02145be8784b2a8f32635b43e17f2dfc969ac13e1030ac6",
+    "rules": [
+      "kotlin-jvm-imports"
+    ]
+  },
+  "androidx/a2ui/model/schema/commontypes/A2uiDynamicValueSchema.kt": {
+    "upstreamSha256": "25baf6df0147fb439eb5a5e50f42d3a2d7e4e9a9f567b356c04c999beaa54ff7",
+    "rules": [
+      "kotlin-jvm-imports"
+    ]
+  },
+  "androidx/a2ui/model/schema/commontypes/A2uiFunctionCallSchema.kt": {
+    "upstreamSha256": "e64d96fbc3f05910eeb8000f7419d9476030618daa2e34dd23fedebda3ee8693",
+    "rules": [
+      "kotlin-jvm-imports"
+    ]
+  }
+}

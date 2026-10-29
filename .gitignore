@@ -1,0 +1,14 @@
+.gradle/
+.kotlin/
+.idea/
+*.iml
+local.properties
+.DS_Store
+build/
+__pycache__/
+
+# JVM heap dumps
+*.hprof
+
+# Xcode per-user state (samples)
+xcuserdata/
