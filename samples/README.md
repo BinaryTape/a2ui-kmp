@@ -30,9 +30,17 @@ app with only its own components needs only `compose-ui`, with Kotlin 2.3 and Co
 
 ## Running it
 
-a2ui-kmp is not on Maven Central yet. Opening the repository root in the IDE builds the sample
-against the source (the root is a composite build). On its own, build a2ui-kmp first and point the
-sample at the local repository it publishes to:
+On its own, the sample uses the released artifacts from Maven Central:
+
+```sh
+cd samples
+./gradlew :composeApp:run     # desktop
+open iosApp/iosApp.xcodeproj  # iOS: run the iosApp scheme on a simulator (launch argument -tab Form opens that tab)
+```
+
+Opening the repository root in the IDE builds the sample against the source instead (the root is a
+composite build). To run it on its own against a local build of a2ui-kmp, publish that build first
+and point the sample at the local repository it publishes to:
 
 ```sh
 ./gradlew -p target/a2ui-kmp publishAllPublicationsToLocalRepository

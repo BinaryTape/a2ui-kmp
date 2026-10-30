@@ -7,9 +7,6 @@ sources.
 
 Sponsored by [LittlePress.AI](https://littlepress.ai). Not affiliated with Google.
 
-> **Not on Maven Central yet.** The first release, `1.0.0-alpha02`, is being prepared. Until it is
-> published, build the artifacts locally (see [DEVELOPMENT.md](DEVELOPMENT.md)).
-
 ## Versions
 
 Versions match [Google's releases](https://developer.android.com/jetpack/androidx/releases/a2ui):
@@ -77,10 +74,6 @@ All artifacts have the same version:
 | `compose-ui` | The Compose renderer for A2UI | `androidx.a2ui.compose:compose-ui` |
 | `compose-ui-testing` | Testing APIs for catalogs built with the Compose A2UI renderer | `androidx.a2ui.compose:compose-ui-testing` |
 | `material3-a2ui` | Compose Material 3 component catalog for A2UI | `androidx.compose.material3:material3-a2ui` |
-
-Until the first release is on Maven Central, build the artifacts locally (see
-[DEVELOPMENT.md](DEVELOPMENT.md)) and add their repository before the others:
-`maven { url = uri("<a2ui-kmp>/build/repo") }`.
 
 ## Platforms
 
