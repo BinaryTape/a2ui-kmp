@@ -28,3 +28,4 @@ for (module in listOf("compose-runtime", "compose-ui", "compose-ui-testing")) {
     include(":$module")
     project(":$module").projectDir = file("compose/$module")
 }
+include(":swiftui-bridge")

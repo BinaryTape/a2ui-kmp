@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Builds and checks the sample app in samples/ the way a customer's app would use a2ui-kmp: from a
-# Maven repository (by default build/repo, where verify.sh publishes), never from our sources.
+# Checks the Compose sample against published artifacts and the experimental SwiftUI sample against
+# the source-built engine. The Maven repository defaults to build/repo, where verify.sh publishes.
 #   desktop  compile, and the sample's UI test (it clicks through the screen)
 #   iOS      link the framework, build the Xcode app for the simulator, install and launch it, and
 #            check that it is still running after a few seconds (screenshot in
@@ -85,4 +85,17 @@ PY
         -scheme iosApp -configuration Debug -destination "id=$device" -derivedDataPath "$derived" \
         CODE_SIGNING_ALLOWED=NO test-without-building
 done
-echo "All samples passed on desktop and iOS: ${samples[*]}"
+# The SwiftUI prototype builds from source and must use the same agent messages as the Compose
+# sample. Check the copies before exercising the bridge and the native four-page UI.
+for kind in material3 custom; do
+    cmp "$root/samples/composeApp/src/commonMain/kotlin/sample/$kind/AgentMessages.kt" \
+        "$root/target/a2ui-kmp/swiftui-bridge/src/commonMain/kotlin/sample/$kind/AgentMessages.kt" || {
+        echo "SwiftUI $kind agent messages differ from the Compose sample" >&2; exit 1;
+    }
+done
+echo "SwiftUI sample: desktop bridge tests and iOS UI test"
+"$root/gradlew" --quiet -p "$root/target/a2ui-kmp" :swiftui-bridge:desktopTest
+xcodebuild -quiet -project "$root/samples/swiftuiApp/iosApp.xcodeproj" -scheme iosApp \
+    -configuration Debug -destination "id=$device" -derivedDataPath "$root/samples/swiftuiApp/build/xcode" \
+    CODE_SIGNING_ALLOWED=NO test
+echo "All samples passed on desktop and iOS: ${samples[*]}, swiftuiApp"
