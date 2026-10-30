@@ -85,6 +85,11 @@ the versions in `gradle/libs.versions.toml` (`a2uiKmp`, `a2uiUpstream`) and in t
 catalog, and starts
 a changelog entry.
 
+Every night `.github/workflows/release-watch.yml` opens an issue for each release to follow
+(`scripts/check-new-releases.py`): a newer `androidx.a2ui` or `material3-a2ui` on Google's Maven
+repository, with the commands above, or the stable Compose Multiplatform release that
+`material3-a2ui` moves to from its pre-release. Each release gets one issue.
+
 ## CI and releases
 
 CI (`.github/workflows/ci.yml`) runs on every push and pull request. First the quick checks:
