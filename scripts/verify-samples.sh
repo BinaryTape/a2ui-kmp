@@ -67,15 +67,17 @@ for sample in "$root/samples"; do
     echo "Sample $name: Xcode app on the simulator"
     derived="$sample/build/xcode"
     # On some CI images xcodebuild offers no simulator at all although simctl has the device
-    # booted; restarting the simulator service once has brought it back.
+    # booted; there the simulator service is restarted once.
     offered() {
         xcodebuild -project "$sample/iosApp/iosApp.xcodeproj" -scheme iosApp -showdestinations 2>/dev/null \
-            | grep -q "id:$device"
+            | grep -F "id:$device" >/dev/null
     }
     if ! offered; then
         echo "xcodebuild does not offer simulator $device; simctl sees:" >&2
         xcrun simctl list devices booted >&2
         xcrun simctl list runtimes >&2
+        # Only on CI: on a developer's machine this would stop every simulator in use.
+        [ -n "${CI:-}" ] || { echo "Sample $name: xcodebuild offers no simulator $device" >&2; exit 1; }
         echo "Restarting the simulator service" >&2
         killall -9 com.apple.CoreSimulator.CoreSimulatorService 2>/dev/null || true
         xcrun simctl boot "$device" 2>/dev/null || true
