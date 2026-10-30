@@ -1,0 +1,37 @@
+# Every night: opens an issue for each release this repository should follow and does not yet, a
+# newer androidx.a2ui or material3-a2ui on Google's Maven repository, or the stable Compose
+# Multiplatform release material3-a2ui moves to (scripts/check-new-releases.py). An issue with the
+# same title, open or closed, means the release is already known.
+name: Release watch
+
+on:
+  schedule:
+    - cron: "0 21 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  watch:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Open an issue for each new release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 scripts/check-new-releases.py > "$RUNNER_TEMP/releases.jsonl"
+          while IFS= read -r release; do
+            title="$(jq -r .title <<< "$release")"
+            known="$(gh issue list --state all --search "in:title \"$title\"" --json title |
+              jq --arg title "$title" 'map(select(.title == $title)) | length')"
+            if [ "$known" -gt 0 ]; then
+              echo "Already has an issue: $title"
+            else
+              jq -r .body <<< "$release" | gh issue create --title "$title" --body-file -
+            fi
+          done < "$RUNNER_TEMP/releases.jsonl"
