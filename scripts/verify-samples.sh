@@ -92,8 +92,18 @@ PY
     [ "$colours" -gt 8 ] || { echo "Sample $name: the iOS screen is blank ($colours colours)" >&2; exit 1; }
 
     echo "Sample $name: iOS UI test (presses Book on the Form tab)"
-    TEST_RUNNER_A2UI_SCREENSHOT_DIR="$sample/build" xcodebuild -quiet -project "$sample/iosApp/iosApp.xcodeproj" \
+    results="$sample/build/ios-ui-test.xcresult"
+    rm -rf "$results"
+    if ! TEST_RUNNER_A2UI_SCREENSHOT_DIR="$sample/build" xcodebuild -quiet -project "$sample/iosApp/iosApp.xcodeproj" \
         -scheme iosApp -configuration Debug -destination "id=$device" -derivedDataPath "$derived" \
-        CODE_SIGNING_ALLOWED=NO test-without-building
+        -resultBundlePath "$results" CODE_SIGNING_ALLOWED=NO test-without-building; then
+        # -quiet hides the failed assertion; print it from the result bundle.
+        xcrun xcresulttool get test-results summary --path "$results" 2>/dev/null | python3 -c '
+import json, sys
+for failure in json.load(sys.stdin).get("testFailures", []):
+    print(failure.get("testName"), failure.get("failureText"), sep=": ", file=sys.stderr)
+' || true
+        exit 1
+    fi
 done
 echo "All samples passed on desktop and iOS: ${samples[*]}"
