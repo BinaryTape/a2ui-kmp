@@ -1,11 +1,15 @@
-# Every push and pull request: the upstream copy is unedited, the generated overlays are current,
-# and scripts/verify.sh passes: both builds (target/a2ui-kmp, then target/material3-a2ui-kmp) run the upstream tests on
-# desktop and publish to build/repo, check-requirements.py checks the versions the artifacts require,
-# and tests/integration uses them on desktop, Android host and iOS simulator, once at the verified
-# version baseline without material3 ("minimum") and once with every package ("all"). The Android device tests run
-# both integration passes against those published artifacts on an emulator (Linux, which has KVM).
-# verify.sh ends with the samples, built from the same artifacts on desktop and the iOS simulator.
-# release.yml runs this workflow on the tagged commit before it uploads anything.
+# Every push and pull request. The quick checks run first: the upstream copy is unedited, the
+# generated overlays are current and the changelog entry for the version being built is complete.
+# Then one macOS job runs scripts/verify.sh's publish phase: both builds (target/a2ui-kmp, then
+# target/material3-a2ui-kmp) publish to build/repo, and check-requirements.py checks the versions
+# those artifacts require. Every later job tests exactly those artifacts, in parallel: upstream's
+# tests on desktop and the iOS simulator, tests/integration on desktop, Android host and iOS
+# simulator (once at the verified version baseline without material3, "minimum", and once with every
+# package, "all"), the samples on desktop and the iOS simulator, and both integration passes on an
+# Android emulator (Linux, which has KVM).
+# A change to Markdown files or screenshots only runs the quick checks, unless it changes README's
+# requirements table, which check-requirements.py compares with the artifacts.
+# release.yml runs this workflow on the tagged commit, always in full, before it uploads anything.
 name: CI
 
 on:
@@ -23,17 +27,41 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  verify:
-    name: Desktop, Android host, iOS simulator, samples
-    runs-on: macos-26
-    timeout-minutes: 90
+  checks:
+    name: Upstream copy, overlays, changelog
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    outputs:
+      build: ${{ steps.changes.outputs.build }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
         with:
-          distribution: temurin
-          java-version-file: .java-version
-      - uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
+          fetch-depth: 0
+
+      - name: Does this change need the builds?
+        id: changes
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          build=true
+          case "$GITHUB_REF" in refs/tags/*) ;; *)
+            if [ "$EVENT" = pull_request ] || [ "$EVENT" = push ]; then
+              if git cat-file -e "$BASE^{commit}" 2>/dev/null; then
+                build=false
+                while IFS= read -r file; do
+                  case "$file" in
+                    *.md|*.png) ;;
+                    *) build=true ;;
+                  esac
+                done < <(git diff --name-only "$BASE" HEAD)
+                table() { sed -n '/requirements:start/,/requirements:end/p'; }
+                if [ "$(git show "$BASE:README.md" | table)" != "$(table < README.md)" ]; then build=true; fi
+              fi
+            fi
+          esac
+          echo "build=$build" >> "$GITHUB_OUTPUT"
+          echo "Builds and tests needed: $build"
 
       - name: Upstream copy matches UPSTREAM
         run: python3 scripts/check-upstream.py
@@ -48,8 +76,30 @@ jobs:
             exit 1
           fi
 
-      - name: Build, test, publish locally, test the published artifacts
-        run: scripts/verify.sh
+      - name: Changelog entry for the version being built
+        run: |
+          python3 scripts/release-notes.py "$(sed -n 's/^a2uiKmp = "\(.*\)"$/\1/p' gradle/libs.versions.toml)" > /dev/null
+
+  publish:
+    name: Build and publish to build/repo
+    needs: checks
+    if: needs.checks.outputs.build == 'true'
+    runs-on: macos-26
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version-file: .java-version
+      - uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
+        with:
+          build-scan-publish: true
+          build-scan-terms-of-use-url: https://gradle.com/help/legal-terms-of-use
+          build-scan-terms-of-use-agree: "yes"
+
+      - name: Publish, check what the artifacts require
+        run: scripts/verify.sh publish requirements
 
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
@@ -57,9 +107,61 @@ jobs:
           path: build/repo
           retention-days: 3
 
+  test:
+    name: ${{ matrix.name }}
+    needs: publish
+    runs-on: macos-26
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Upstream tests (desktop, iOS simulator)
+            phase: upstream-tests
+          - name: Integration (desktop, Android host, iOS simulator)
+            phase: integration
+          - name: Samples (desktop, iOS simulator)
+            phase: samples
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version-file: .java-version
+      - uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
+        with:
+          build-scan-publish: true
+          build-scan-terms-of-use-url: https://gradle.com/help/legal-terms-of-use
+          build-scan-terms-of-use-agree: "yes"
+
+      # Kotlin/Native's caches of the libraries it links (Compose and the rest): building them takes
+      # most of a cold iOS link. Saved from main only, so pull requests do not fill the cache quota.
+      - name: Restore Kotlin/Native library caches
+        id: konan
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.konan/kotlin-native-prebuilt-*/klib/cache
+          key: konan-${{ runner.os }}-${{ matrix.phase }}-${{ hashFiles('gradle/libs.versions.toml', 'samples/gradle/libs.versions.toml') }}
+
+      # The artifacts the publish job built, so every job tests exactly those.
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: local-repo
+          path: build/repo
+
+      - name: scripts/verify.sh ${{ matrix.phase }}
+        run: scripts/verify.sh ${{ matrix.phase }}
+
+      - name: Save Kotlin/Native library caches
+        if: github.ref == 'refs/heads/main' && steps.konan.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.konan/kotlin-native-prebuilt-*/klib/cache
+          key: ${{ steps.konan.outputs.cache-primary-key }}
+
   android-device:
     name: Android device (emulator)
-    needs: verify
+    needs: publish
     # Has the android-37.1 platform tests/integration compiles against.
     runs-on: ubuntu-24.04
     timeout-minutes: 45
@@ -70,8 +172,12 @@ jobs:
           distribution: temurin
           java-version-file: .java-version
       - uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
+        with:
+          build-scan-publish: true
+          build-scan-terms-of-use-url: https://gradle.com/help/legal-terms-of-use
+          build-scan-terms-of-use-agree: "yes"
 
-      # The artifacts the verify job built and tested, so this job tests exactly those.
+      # The artifacts the publish job built, so this job tests exactly those.
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: local-repo
@@ -97,3 +203,25 @@ jobs:
           script: |
             ./gradlew --quiet -p tests/integration -Pa2uiIntegration=minimum connectedAndroidDeviceTest
             ./gradlew --quiet -p tests/integration -Pa2uiIntegration=all connectedAndroidDeviceTest
+
+  # The one check to require on main. Skipped jobs (a docs-only change) report no check under their
+  # matrix names, so requiring those would wait for ever; this passes only if every job passed, or,
+  # for a docs-only change, the checks passed and the rest were skipped.
+  result:
+    name: CI result
+    needs: [checks, publish, test, android-device]
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Every job passed, or was skipped for a docs-only change
+        env:
+          BUILD: ${{ needs.checks.outputs.build }}
+          CHECKS: ${{ needs.checks.result }}
+          LATER: ${{ needs.publish.result }} ${{ needs.test.result }} ${{ needs.android-device.result }}
+        run: |
+          echo "checks: $CHECKS, builds needed: $BUILD, publish/test/android-device: $LATER"
+          expected=skipped
+          [ "$BUILD" = true ] && expected=success
+          [ "$CHECKS" = success ] || exit 1
+          for result in $LATER; do [ "$result" = "$expected" ] || exit 1; done
