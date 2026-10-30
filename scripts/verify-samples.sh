@@ -56,6 +56,27 @@ fi
 trap '$booted_here && xcrun simctl shutdown "$device" >/dev/null 2>&1 || true' EXIT
 xcrun simctl bootstatus "$device" -b >/dev/null
 
+# xcodebuild on the simulator. On a busy CI machine its list of simulators is sometimes empty for
+# a moment, although the simulator is booted; that fails with status 70 ("Unable to find a device
+# matching the provided destination specifier"), so wait and try again.
+on_simulator() {
+    local attempt status arg previous="" results=""
+    for arg in "$@"; do
+        if [ "$previous" = -resultBundlePath ]; then results="$arg"; fi
+        previous="$arg"
+    done
+    for attempt in 1 2 3 4 5; do
+        status=0
+        # A failed attempt may have written the result bundle, and xcodebuild will not overwrite it.
+        if [ -n "$results" ]; then rm -rf "$results"; fi
+        xcodebuild "$@" -destination "id=$device" || status=$?
+        [ "$status" -eq 70 ] || return "$status"
+        echo "xcodebuild did not find simulator $device (attempt $attempt of 5)" >&2
+        [ "$attempt" -eq 5 ] || sleep 20
+    done
+    return 70
+}
+
 samples=()
 for sample in "$root/samples"; do
     name="$(basename "$sample")"
@@ -66,26 +87,8 @@ for sample in "$root/samples"; do
 
     echo "Sample $name: Xcode app on the simulator"
     derived="$sample/build/xcode"
-    # On some CI images xcodebuild offers no simulator at all although simctl has the device
-    # booted; there the simulator service is restarted once.
-    offered() {
-        xcodebuild -project "$sample/iosApp/iosApp.xcodeproj" -scheme iosApp -showdestinations 2>/dev/null \
-            | grep -F "id:$device" >/dev/null
-    }
-    if ! offered; then
-        echo "xcodebuild does not offer simulator $device; simctl sees:" >&2
-        xcrun simctl list devices booted >&2
-        xcrun simctl list runtimes >&2
-        # Only on CI: on a developer's machine this would stop every simulator in use.
-        [ -n "${CI:-}" ] || { echo "Sample $name: xcodebuild offers no simulator $device" >&2; exit 1; }
-        echo "Restarting the simulator service" >&2
-        killall -9 com.apple.CoreSimulator.CoreSimulatorService 2>/dev/null || true
-        xcrun simctl boot "$device" 2>/dev/null || true
-        xcrun simctl bootstatus "$device" -b >/dev/null
-        offered || { echo "Sample $name: xcodebuild still offers no simulator $device" >&2; exit 1; }
-    fi
-    xcodebuild -quiet -project "$sample/iosApp/iosApp.xcodeproj" -scheme iosApp -configuration Debug \
-        -destination "id=$device" -derivedDataPath "$derived" CODE_SIGNING_ALLOWED=NO build-for-testing
+    on_simulator -quiet -project "$sample/iosApp/iosApp.xcodeproj" -scheme iosApp -configuration Debug \
+        -derivedDataPath "$derived" CODE_SIGNING_ALLOWED=NO build-for-testing
     app="$derived/Build/Products/Debug-iphonesimulator/iosApp.app"
     bundle="$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' "$app/Info.plist")"
     xcrun simctl install "$device" "$app"
@@ -111,10 +114,9 @@ PY
 
     echo "Sample $name: iOS UI test (presses Book on the Form tab)"
     results="$sample/build/ios-ui-test.xcresult"
-    rm -rf "$results"
-    if ! TEST_RUNNER_A2UI_SCREENSHOT_DIR="$sample/build" xcodebuild -quiet -project "$sample/iosApp/iosApp.xcodeproj" \
-        -scheme iosApp -configuration Debug -destination "id=$device" -derivedDataPath "$derived" \
-        -resultBundlePath "$results" CODE_SIGNING_ALLOWED=NO test-without-building; then
+    export TEST_RUNNER_A2UI_SCREENSHOT_DIR="$sample/build"
+    if ! on_simulator -quiet -project "$sample/iosApp/iosApp.xcodeproj" -scheme iosApp -configuration Debug \
+        -derivedDataPath "$derived" -resultBundlePath "$results" CODE_SIGNING_ALLOWED=NO test-without-building; then
         # -quiet hides the failed assertion; print it from the result bundle.
         xcrun xcresulttool get test-results summary --path "$results" 2>/dev/null | python3 -c '
 import json, sys
