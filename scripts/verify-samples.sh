@@ -25,18 +25,29 @@ for catalog in "$root/samples/gradle/libs.versions.toml"; do
     fi
 done
 
-# A standard iPhone simulator (e.g. "iPhone 17 Pro") on the newest iOS runtime that has one, or the
-# simulator A2UI_SIMULATOR names (UDID).
+# A standard iPhone simulator (e.g. "iPhone 17 Pro") on the newest iOS runtime the selected Xcode
+# can build for (not newer than its iOS Simulator SDK: a machine can have runtimes of other Xcode
+# versions, which xcodebuild does not offer as destinations), or the simulator A2UI_SIMULATOR
+# names (UDID).
+sdk="$(xcrun --sdk iphonesimulator --show-sdk-version)"
+echo "$(xcodebuild -version | head -1), iOS Simulator SDK $sdk"
 device="${A2UI_SIMULATOR:-$(xcrun simctl list devices available -j | python3 -c '
 import json, re, sys
+sdk = [int(p) for p in sys.argv[1].split(".")]
 runtimes = json.load(sys.stdin)["devices"]
 version = lambda r: [int(p) for p in r.rsplit("iOS-", 1)[1].split("-")]
-for runtime in sorted((r for r in runtimes if "iOS" in r), key=version, reverse=True):
+ios = sorted((r for r in runtimes if "iOS" in r), key=version, reverse=True)
+for runtime in (r for r in ios if version(r) <= sdk):
     phones = [d for d in runtimes[runtime] if re.fullmatch(r"iPhone \d+( Pro( Max)?| Plus)?", d["name"])]
     if phones:
-        print(phones[0]["udid"])
+        phone = phones[0]
+        print("Simulator:", phone["name"], runtime.rsplit(".", 1)[1], file=sys.stderr)
+        print(phone["udid"])
         break
-')}"
+else:
+    sys.exit("No iPhone simulator on an iOS runtime up to " + sys.argv[1] + " (the SDK of the selected Xcode); "
+             "available runtimes: " + (", ".join(r.rsplit(".", 1)[1] for r in ios) or "none"))
+' "$sdk")}"
 booted_here=false
 if ! xcrun simctl list devices booted | grep -q "$device"; then
     xcrun simctl boot "$device"
@@ -44,6 +55,27 @@ if ! xcrun simctl list devices booted | grep -q "$device"; then
 fi
 trap '$booted_here && xcrun simctl shutdown "$device" >/dev/null 2>&1 || true' EXIT
 xcrun simctl bootstatus "$device" -b >/dev/null
+
+# xcodebuild on the simulator. On a busy CI machine its list of simulators is sometimes empty for
+# a moment, although the simulator is booted; that fails with status 70 ("Unable to find a device
+# matching the provided destination specifier"), so wait and try again.
+on_simulator() {
+    local attempt status arg previous="" results=""
+    for arg in "$@"; do
+        if [ "$previous" = -resultBundlePath ]; then results="$arg"; fi
+        previous="$arg"
+    done
+    for attempt in 1 2 3 4 5; do
+        status=0
+        # A failed attempt may have written the result bundle, and xcodebuild will not overwrite it.
+        if [ -n "$results" ]; then rm -rf "$results"; fi
+        xcodebuild "$@" -destination "id=$device" || status=$?
+        [ "$status" -eq 70 ] || return "$status"
+        echo "xcodebuild did not find simulator $device (attempt $attempt of 5)" >&2
+        [ "$attempt" -eq 5 ] || sleep 20
+    done
+    return 70
+}
 
 samples=()
 for sample in "$root/samples"; do
@@ -55,8 +87,8 @@ for sample in "$root/samples"; do
 
     echo "Sample $name: Xcode app on the simulator"
     derived="$sample/build/xcode"
-    xcodebuild -quiet -project "$sample/iosApp/iosApp.xcodeproj" -scheme iosApp -configuration Debug \
-        -destination "id=$device" -derivedDataPath "$derived" CODE_SIGNING_ALLOWED=NO build-for-testing
+    on_simulator -quiet -project "$sample/iosApp/iosApp.xcodeproj" -scheme iosApp -configuration Debug \
+        -derivedDataPath "$derived" CODE_SIGNING_ALLOWED=NO build-for-testing
     app="$derived/Build/Products/Debug-iphonesimulator/iosApp.app"
     bundle="$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' "$app/Info.plist")"
     xcrun simctl install "$device" "$app"
@@ -81,8 +113,17 @@ PY
     [ "$colours" -gt 8 ] || { echo "Sample $name: the iOS screen is blank ($colours colours)" >&2; exit 1; }
 
     echo "Sample $name: iOS UI test (presses Book on the Form tab)"
-    TEST_RUNNER_A2UI_SCREENSHOT_DIR="$sample/build" xcodebuild -quiet -project "$sample/iosApp/iosApp.xcodeproj" \
-        -scheme iosApp -configuration Debug -destination "id=$device" -derivedDataPath "$derived" \
-        CODE_SIGNING_ALLOWED=NO test-without-building
+    results="$sample/build/ios-ui-test.xcresult"
+    export TEST_RUNNER_A2UI_SCREENSHOT_DIR="$sample/build"
+    if ! on_simulator -quiet -project "$sample/iosApp/iosApp.xcodeproj" -scheme iosApp -configuration Debug \
+        -derivedDataPath "$derived" -resultBundlePath "$results" CODE_SIGNING_ALLOWED=NO test-without-building; then
+        # -quiet hides the failed assertion; print it from the result bundle.
+        xcrun xcresulttool get test-results summary --path "$results" 2>/dev/null | python3 -c '
+import json, sys
+for failure in json.load(sys.stdin).get("testFailures", []):
+    print(failure.get("testName"), failure.get("failureText"), sep=": ", file=sys.stderr)
+' || true
+        exit 1
+    fi
 done
 echo "All samples passed on desktop and iOS: ${samples[*]}"

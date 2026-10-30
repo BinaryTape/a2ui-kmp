@@ -7,11 +7,12 @@ final class FormUITests: XCTestCase {
         app.launchArguments = ["-tab", "Form"]
         app.launch()
 
+        // Generous: a CI simulator on a busy machine can take a minute to show the first frame.
         let book = app.buttons["Book"]
-        XCTAssertTrue(book.waitForExistence(timeout: 30))
+        XCTAssertTrue(book.waitForExistence(timeout: 90), "The Form tab did not show its Book button")
         book.tap()
         let event = app.staticTexts["book_table from submit on booking: {guest=Ada, party=[2]}"]
-        XCTAssertTrue(event.waitForExistence(timeout: 10))
+        XCTAssertTrue(event.waitForExistence(timeout: 30), "No event for the agent after pressing Book")
 
         let screenshot = XCUIScreen.main.screenshot()
         let attachment = XCTAttachment(screenshot: screenshot)
