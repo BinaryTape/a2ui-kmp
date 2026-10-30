@@ -25,18 +25,29 @@ for catalog in "$root/samples/gradle/libs.versions.toml"; do
     fi
 done
 
-# A standard iPhone simulator (e.g. "iPhone 17 Pro") on the newest iOS runtime that has one, or the
-# simulator A2UI_SIMULATOR names (UDID).
+# A standard iPhone simulator (e.g. "iPhone 17 Pro") on the newest iOS runtime the selected Xcode
+# can build for (not newer than its iOS Simulator SDK: a machine can have runtimes of other Xcode
+# versions, which xcodebuild does not offer as destinations), or the simulator A2UI_SIMULATOR
+# names (UDID).
+sdk="$(xcrun --sdk iphonesimulator --show-sdk-version)"
+echo "$(xcodebuild -version | head -1), iOS Simulator SDK $sdk"
 device="${A2UI_SIMULATOR:-$(xcrun simctl list devices available -j | python3 -c '
 import json, re, sys
+sdk = [int(p) for p in sys.argv[1].split(".")]
 runtimes = json.load(sys.stdin)["devices"]
 version = lambda r: [int(p) for p in r.rsplit("iOS-", 1)[1].split("-")]
-for runtime in sorted((r for r in runtimes if "iOS" in r), key=version, reverse=True):
+ios = sorted((r for r in runtimes if "iOS" in r), key=version, reverse=True)
+for runtime in (r for r in ios if version(r) <= sdk):
     phones = [d for d in runtimes[runtime] if re.fullmatch(r"iPhone \d+( Pro( Max)?| Plus)?", d["name"])]
     if phones:
-        print(phones[0]["udid"])
+        phone = phones[0]
+        print("Simulator:", phone["name"], runtime.rsplit(".", 1)[1], file=sys.stderr)
+        print(phone["udid"])
         break
-')}"
+else:
+    sys.exit("No iPhone simulator on an iOS runtime up to " + sys.argv[1] + " (the SDK of the selected Xcode); "
+             "available runtimes: " + (", ".join(r.rsplit(".", 1)[1] for r in ios) or "none"))
+' "$sdk")}"
 booted_here=false
 if ! xcrun simctl list devices booted | grep -q "$device"; then
     xcrun simctl boot "$device"
