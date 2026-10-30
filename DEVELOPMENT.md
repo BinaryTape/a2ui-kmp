@@ -62,13 +62,13 @@ app has its own, as a separate project):
 scripts/verify.sh                                                                  # everything below
 ```
 
-It builds `target/a2ui-kmp` and then `target/material3-a2ui-kmp`, runs upstream's tests on desktop and
-ours on the iOS simulator, and publishes both to `build/repo`. Then it checks that the artifacts
-require what README's "Requirements" table says (`scripts/check-requirements.py`), runs
-`tests/integration` twice (`minimum`: the five packages with the Kotlin they require; `all`: every
-package) on desktop, the Android
-host, the iOS simulator and, if one is connected, an Android device or emulator, and builds and
-starts the sample app on desktop and the iOS simulator (`scripts/verify-samples.sh`).
+It publishes `target/a2ui-kmp` and then `target/material3-a2ui-kmp` to `build/repo`, checks that the
+artifacts require what README's "Requirements" table says (`scripts/check-requirements.py`), runs
+upstream's tests on desktop and ours on the iOS simulator, runs `tests/integration` twice
+(`minimum`: the five packages with the Kotlin they require; `all`: every package) on desktop, the
+Android host, the iOS simulator and, if one is connected, an Android device or emulator, and builds
+and starts the sample app on desktop and the iOS simulator (`scripts/verify-samples.sh`). Each phase
+also runs on its own, after `publish`: `scripts/verify.sh integration`, for example.
 
 To use a local build from another project, add `maven { url = uri("<a2ui-kmp>/build/repo") }`
 to its repositories, before the others. The sample app takes it as `-Pa2uiRepo=<repository>`.
@@ -87,10 +87,15 @@ a changelog entry.
 
 ## CI and releases
 
-CI (`.github/workflows/ci.yml`) runs on every push and pull request: `scripts/check-upstream.py`
-compares `source/` with the commit in `source/UPSTREAM` file by file, the generated overlays must be
-current, `scripts/verify.sh` runs on macOS, and the integration tests' Android device part runs on an
-emulator, in both passes, against the artifacts that job published.
+CI (`.github/workflows/ci.yml`) runs on every push and pull request. First the quick checks:
+`scripts/check-upstream.py` compares `source/` with the commit in `source/UPSTREAM` file by file, the
+generated overlays must be current, and the changelog entry for the version being built must be
+complete. Then one macOS job publishes both builds to `build/repo` (`scripts/verify.sh publish
+requirements`), and four jobs test those artifacts in parallel: upstream's tests, the integration
+tests and the samples on macOS (`scripts/verify.sh upstream-tests`, `integration`, `samples`), and
+the integration tests' Android device part on an emulator, in both passes. A change to Markdown files
+or screenshots only runs the quick checks, unless it changes README's "Requirements" table. Each
+Gradle build publishes a Build Scan, linked from the job summary.
 
 To release, set `a2uiKmp` in `gradle/libs.versions.toml`, finish its `CHANGELOG.md`
 entry, and push tag `v<version>`. `.github/workflows/release.yml` checks that the tag, the version
