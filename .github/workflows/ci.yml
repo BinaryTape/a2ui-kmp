@@ -203,3 +203,25 @@ jobs:
           script: |
             ./gradlew --quiet -p tests/integration -Pa2uiIntegration=minimum connectedAndroidDeviceTest
             ./gradlew --quiet -p tests/integration -Pa2uiIntegration=all connectedAndroidDeviceTest
+
+  # The one check to require on main. Skipped jobs (a docs-only change) report no check under their
+  # matrix names, so requiring those would wait for ever; this passes only if every job passed, or,
+  # for a docs-only change, the checks passed and the rest were skipped.
+  result:
+    name: CI result
+    needs: [checks, publish, test, android-device]
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Every job passed, or was skipped for a docs-only change
+        env:
+          BUILD: ${{ needs.checks.outputs.build }}
+          CHECKS: ${{ needs.checks.result }}
+          LATER: ${{ needs.publish.result }} ${{ needs.test.result }} ${{ needs.android-device.result }}
+        run: |
+          echo "checks: $CHECKS, builds needed: $BUILD, publish/test/android-device: $LATER"
+          expected=skipped
+          [ "$BUILD" = true ] && expected=success
+          [ "$CHECKS" = success ] || exit 1
+          for result in $LATER; do [ "$result" = "$expected" ] || exit 1; done
