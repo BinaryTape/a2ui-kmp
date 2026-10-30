@@ -28,10 +28,12 @@ Add the artifacts to your version catalog, with the Google and Maven Central rep
 a2ui = "1.0.0-alpha02"
 
 [libraries]
-# The basic catalog drawn with Material 3, and everything below it
 a2ui-material3-kmp = { module = "ai.littlepress.a2ui:material3-a2ui", version.ref = "a2ui" }
-# Or, to draw your own components: the renderer and catalog API without Material 3
 a2ui-compose-ui-kmp = { module = "ai.littlepress.a2ui:compose-ui", version.ref = "a2ui" }
+a2ui-compose-runtime-kmp = { module = "ai.littlepress.a2ui:compose-runtime", version.ref = "a2ui" }
+a2ui-model-kmp = { module = "ai.littlepress.a2ui:a2ui-model", version.ref = "a2ui" }
+a2ui-engine-kmp = { module = "ai.littlepress.a2ui:a2ui-engine", version.ref = "a2ui" }
+a2ui-compose-ui-testing-kmp = { module = "ai.littlepress.a2ui:compose-ui-testing", version.ref = "a2ui" }
 ```
 
 ```kotlin
@@ -46,7 +48,21 @@ dependencyResolutionManagement {
 // build.gradle.kts
 kotlin {
     sourceSets.commonMain.dependencies {
+        // 1. The basic catalog drawn with Material 3, and everything it needs
         implementation(libs.a2ui.material3.kmp)
+        // 2. Or, to draw your own components: the renderer and catalog API without Material 3
+        // implementation(libs.a2ui.compose.ui.kmp)
+
+        // 3. Only the Compose runtime of the renderer (state, data binding), to build your own renderer
+        // implementation(libs.a2ui.compose.runtime.kmp)
+        // 4. Only the protocol model, without Compose
+        // implementation(libs.a2ui.model.kmp)
+        // 5. The engine that processes messages, for renderer developers (no Compose)
+        // implementation(libs.a2ui.engine.kmp)
+    }
+    sourceSets.commonTest.dependencies {
+        // 6. Testing APIs for your catalog's components
+        // implementation(libs.a2ui.compose.ui.testing.kmp)
     }
 }
 ```
