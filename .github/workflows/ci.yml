@@ -51,11 +51,12 @@ jobs:
                 build=false
                 while IFS= read -r file; do
                   # Text and pictures for readers need no build: Markdown anywhere, and images
-                  # outside source sets (inside one an image may be a resource the build uses).
+                  # in docs/ or a screenshots folder. An image anywhere else may be one an app or
+                  # a source set uses (a resource, an iOS asset), so it builds.
                   case "$file" in
                     *.md) ;;
-                    */src/*) build=true ;;
-                    *.png|*.svg|*.jpg|*.jpeg|*.gif|*.webp) ;;
+                    docs/*.png|docs/*.svg|docs/*.jpg|docs/*.jpeg|docs/*.gif|docs/*.webp) ;;
+                    */screenshots/*.png|*/screenshots/*.jpg|*/screenshots/*.jpeg) ;;
                     *) build=true ;;
                   esac
                 done < <(git diff --name-only "$BASE" HEAD)
