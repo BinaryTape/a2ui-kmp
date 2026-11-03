@@ -50,8 +50,12 @@ jobs:
               if git cat-file -e "$BASE^{commit}" 2>/dev/null; then
                 build=false
                 while IFS= read -r file; do
+                  # Text and pictures for readers need no build: Markdown anywhere, and images
+                  # outside source sets (inside one an image may be a resource the build uses).
                   case "$file" in
-                    *.md|*.png) ;;
+                    *.md) ;;
+                    */src/*) build=true ;;
+                    *.png|*.svg|*.jpg|*.jpeg|*.gif|*.webp) ;;
                     *) build=true ;;
                   esac
                 done < <(git diff --name-only "$BASE" HEAD)
