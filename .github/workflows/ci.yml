@@ -50,11 +50,18 @@ jobs:
               if git cat-file -e "$BASE^{commit}" 2>/dev/null; then
                 build=false
                 while IFS= read -r file; do
+                  # Text and pictures for readers need no build: Markdown anywhere, and images
+                  # in docs/ or a screenshots folder. An image anywhere else may be one an app or
+                  # a source set uses (a resource, an iOS asset), so it builds. A rename counts
+                  # as its old path and its new one (--no-renames), so moving a resource into
+                  # docs/ still builds.
                   case "$file" in
-                    *.md|*.png) ;;
+                    *.md) ;;
+                    docs/*.png|docs/*.svg|docs/*.jpg|docs/*.jpeg|docs/*.gif|docs/*.webp) ;;
+                    */screenshots/*.png|*/screenshots/*.jpg|*/screenshots/*.jpeg) ;;
                     *) build=true ;;
                   esac
-                done < <(git diff --name-only "$BASE" HEAD)
+                done < <(git diff --name-only --no-renames "$BASE" HEAD)
                 table() { sed -n '/requirements:start/,/requirements:end/p'; }
                 if [ "$(git show "$BASE:README.md" | table)" != "$(table < README.md)" ]; then build=true; fi
               fi
