@@ -38,6 +38,10 @@ receive, the published artifacts (see its `settings.gradle.kts`).
 
 ## How the sources are built
 
+![The upstream files of A2UI Jetpack Compose split into those used as they are, those rewritten by scripts and one hand-made replacement, all compiled into commonMain; the rewritten files import a2ui-compat, which is maintained separately.](docs/source-layering.svg)
+
+The counts in the figure are those of 1.0.0-alpha02; the changelog has them for each release.
+
 Most upstream files compile as they are. A file that uses an API missing outside Android, such as
 `java.text.SimpleDateFormat` or `android.util.JsonReader`, gets a generated overlay that imports our
 equivalent from `a2ui-compat` instead. The rewrite rules are fixed and listed in
