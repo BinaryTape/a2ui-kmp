@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 460" width="800" height="460">
+  <defs>
+    <style>
+      .bg { fill: #FFFFFF; }
+      .group-box { fill: #F8FAFC; stroke: #B0BEC5; stroke-width: 1.5; stroke-dasharray: 6 4; }
+      .group-label { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 700; fill: #2B3A42; }
+      .node-blue { fill: #EBF5FB; stroke: #5DADE2; stroke-width: 1.5; }
+      .node-green { fill: #E8F8F5; stroke: #48C9B0; stroke-width: 1.5; }
+      .node-amber { fill: #FEF9E7; stroke: #F4D03F; stroke-width: 1.5; }
+      .node-teal { fill: #E6F8F6; stroke: #1AAE9F; stroke-width: 1.5; }
+      .node-title { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; font-size: 13px; font-weight: 600; fill: #1C2833; text-anchor: middle; }
+      .node-sub { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 11px; fill: #566573; text-anchor: middle; }
+      .edge-label { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; font-size: 11px; fill: #117864; text-anchor: middle; }
+      .arrow { stroke: #788896; stroke-width: 1.5; fill: none; }
+      .arrow-dashed { stroke: #1AAE9F; stroke-width: 1.5; stroke-dasharray: 5 3; fill: none; }
+    </style>
+  </defs>
+
+  <rect width="800" height="460" class="bg" />
+
+  <!-- Outer group box for the 99% upstream split -->
+  <rect x="24" y="24" width="528" height="292" class="group-box" rx="8" />
+  <text x="44" y="50" class="group-label">Upstream files: 192 / 193 compile untouched or through scripted rewrites</text>
+
+  <!-- 1. Upstream -->
+  <rect x="36" y="138" width="200" height="64" class="node-blue" rx="6" />
+  <text x="136" y="166" class="node-title">A2UI Jetpack Compose</text>
+  <text x="136" y="185" class="node-sub">AndroidX 1.0.0-alpha02 · 193 files</text>
+
+  <!-- 2. Keep as-is (124) -->
+  <rect x="292" y="68" width="236" height="56" class="node-green" rx="6" />
+  <text x="410" y="93" class="node-title">Keep as-is</text>
+  <text x="410" y="111" class="node-sub">124 files</text>
+
+  <!-- 3. Scripted rewrites (68) -->
+  <rect x="292" y="142" width="236" height="56" class="node-blue" rx="6" />
+  <text x="410" y="167" class="node-title">Scripted rewrites</text>
+  <text x="410" y="185" class="node-sub">68 files (package / API swaps)</text>
+
+  <!-- 4. Hand-written override (1) -->
+  <rect x="292" y="216" width="236" height="56" class="node-amber" rx="6" />
+  <text x="410" y="241" class="node-title">Manual override</text>
+  <text x="410" y="259" class="node-sub">1 file (ShimmerIndicator.kt)</text>
+
+  <!-- 5. AI-assisted compat (Bottom, separate) -->
+  <rect x="292" y="356" width="236" height="64" class="node-teal" rx="6" />
+  <text x="410" y="384" class="node-title">a2ui-compat</text>
+  <text x="410" y="403" class="node-sub">AI-assisted (maintained separately)</text>
+
+  <!-- 6. KMP commonMain (Right) -->
+  <rect x="608" y="138" width="168" height="64" class="node-green" rx="6" />
+  <text x="692" y="166" class="node-title">a2ui-kmp</text>
+  <text x="692" y="185" class="node-sub">commonMain</text>
+
+  <!-- Orthogonal Connectors -->
+  <!-- Upstream -> 3 boxes -->
+  <path d="M 236 170 L 256 170 L 256 96 L 288 96" class="arrow" />
+  <polygon points="292,96 281,90.5 281,101.5" fill="#788896" />
+
+  <path d="M 236 170 L 288 170" class="arrow" />
+  <polygon points="292,170 281,164.5 281,175.5" fill="#788896" />
+
+  <path d="M 236 170 L 256 170 L 256 244 L 288 244" class="arrow" />
+  <polygon points="292,244 281,238.5 281,249.5" fill="#788896" />
+
+  <!-- 3 boxes -> a2ui-kmp commonMain -->
+  <path d="M 528 96 L 568 96 L 568 156 L 604 156" class="arrow" />
+  <polygon points="608,156 597,150.5 597,161.5" fill="#788896" />
+
+  <path d="M 528 170 L 604 170" class="arrow" />
+  <polygon points="608,170 597,164.5 597,175.5" fill="#788896" />
+
+  <path d="M 528 244 L 568 244 L 568 184 L 604 184" class="arrow" />
+  <polygon points="608,184 597,178.5 597,189.5" fill="#788896" />
+
+  <!-- Scripted rewrites (68) -> a2ui-compat (dashed teal, routed cleanly on left side x=272 or straight between) -->
+  <path d="M 292 184 L 270 184 L 270 388 L 288 388" class="arrow-dashed" />
+  <polygon points="292,388 281,382.5 281,393.5" fill="#1AAE9F" />
+  <text x="236" y="344" class="edge-label">imports</text>
+
+  <!-- a2ui-compat -> a2ui-kmp commonMain -->
+  <path d="M 528 388 L 692 388 L 692 206" class="arrow-dashed" />
+  <polygon points="692,202 686.5,213 697.5,213" fill="#1AAE9F" />
+</svg>
