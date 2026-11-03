@@ -105,7 +105,8 @@ complete. Then one macOS job publishes both builds to `build/repo` (`scripts/ver
 requirements`), and four jobs test those artifacts in parallel: upstream's tests, the integration
 tests and the samples on macOS (`scripts/verify.sh upstream-tests`, `integration`, `samples`), and
 the integration tests' Android device part on an emulator, in both passes. A change to Markdown files
-or screenshots only runs the quick checks, unless it changes README's "Requirements" table. Each
+or documentation images (PNG, SVG, JPEG, GIF or WebP in `docs/`; PNG or JPEG in a `screenshots`
+folder) only runs the quick checks, unless it changes README's "Requirements" table. Each
 Gradle build publishes a Build Scan, linked from the job summary.
 
 To release, set `a2uiKmp` in `gradle/libs.versions.toml`, finish its `CHANGELOG.md`
