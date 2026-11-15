@@ -9,6 +9,10 @@ Sponsored by [LittlePress.AI](https://littlepress.ai). Not affiliated with Googl
 
 ## Versions
 
+These artifacts implement A2UI protocol `v0.9` and also accept `v0.9.1` messages. `1.0.0-alpha02`
+is the AndroidX library version, not the protocol version; it does not imply support for A2UI
+protocol `v1.0`.
+
 Versions match [Google's releases](https://developer.android.com/jetpack/androidx/releases/a2ui):
 `1.0.0-alpha02` is built from Google's `1.0.0-alpha02` (see [source/UPSTREAM](source/UPSTREAM) and
 [CHANGELOG.md](CHANGELOG.md)). We will keep following them until Google publishes A2UI for
