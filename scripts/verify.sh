@@ -8,9 +8,11 @@
 # (adb). Finally builds and checks the samples against the same artifacts on desktop and the iOS
 # simulator (scripts/verify-samples.sh).
 #
-# With no arguments it runs every phase in order. CI runs them in separate jobs, the later ones on
-# the build/repo the first one published:
-#   scripts/verify.sh [publish] [requirements] [upstream-tests] [integration] [samples]
+# With no arguments it runs every phase in order. CI runs platform-split phases across Linux
+# (desktop and Android host) and macOS (publish and iOS simulator), reusing the build/repo
+# the publish phase produced:
+#   scripts/verify.sh [publish] [requirements] [upstream-tests|upstream-tests-jvm|upstream-tests-ios]
+#                     [integration|integration-jvm|integration-ios] [samples|samples-jvm|samples-ios]
 # Each phase prints how long it took.
 set -euo pipefail
 root="$(cd "$(dirname "$0")/.." && pwd)"
@@ -27,8 +29,8 @@ phases=("$@")
 [ ${#phases[@]} -gt 0 ] || phases=(publish requirements upstream-tests integration samples)
 for phase in "${phases[@]}"; do
     case "$phase" in
-        publish|requirements|upstream-tests|integration|samples) ;;
-        *) echo "Unknown phase: $phase (publish, requirements, upstream-tests, integration, samples)" >&2; exit 1 ;;
+        publish|requirements|upstream-tests|upstream-tests-jvm|upstream-tests-ios|integration|integration-jvm|integration-ios|samples|samples-jvm|samples-ios) ;;
+        *) echo "Unknown phase: $phase (publish, requirements, upstream-tests[-jvm|-ios], integration[-jvm|-ios], samples[-jvm|-ios])" >&2; exit 1 ;;
     esac
 done
 
@@ -47,30 +49,50 @@ requirements() {
     python3 "$root/scripts/check-requirements.py"
 }
 
-upstream-tests() {
+run_upstream_tests() {
     for build in "${builds[@]}"; do
-        "$gradlew" --quiet -p "$root/target/$build" desktopTest iosSimulatorArm64Test
+        "$gradlew" --quiet -p "$root/target/$build" "$@"
     done
 }
 
-integration() {
-    # tests/integration has an Android target: use ANDROID_HOME, or the default SDK location on macOS.
-    export ANDROID_HOME="${ANDROID_HOME:-$HOME/Library/Android/sdk}"
+upstream-tests() { run_upstream_tests desktopTest iosSimulatorArm64Test; }
+upstream-tests-jvm() { run_upstream_tests desktopTest; }
+upstream-tests-ios() { run_upstream_tests iosSimulatorArm64Test; }
+
+run_integration() {
+    # tests/integration has an Android target: use ANDROID_HOME, ANDROID_SDK_ROOT, or the default macOS SDK location.
+    export ANDROID_HOME="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-$HOME/Library/Android/sdk}}"
     [ -d "$ANDROID_HOME" ] || { echo "Android SDK not found: set ANDROID_HOME" >&2; exit 1; }
-    local tasks=(desktopTest testAndroidHostTest iosSimulatorArm64Test)
-    if adb get-state >/dev/null 2>&1; then
-        tasks+=(connectedAndroidDeviceTest)
-    else
-        echo "No Android device connected: skipping the device tests."
-    fi
+    local tasks=("$@")
     for run in minimum all; do
         echo "Integration run: $run (${tasks[*]})"
         "$gradlew" --quiet -p "$root/tests/integration" --refresh-dependencies -Pa2uiIntegration="$run" "${tasks[@]}"
     done
 }
 
+integration() {
+    local tasks=(desktopTest testAndroidHostTest iosSimulatorArm64Test)
+    if adb get-state >/dev/null 2>&1; then
+        tasks+=(connectedAndroidDeviceTest)
+    else
+        echo "No Android device connected: skipping the device tests."
+    fi
+    run_integration "${tasks[@]}"
+}
+
+integration-jvm() { run_integration desktopTest testAndroidHostTest; }
+integration-ios() { run_integration iosSimulatorArm64Test; }
+
 samples() {
     "$root/scripts/verify-samples.sh" "$repo"
+}
+
+samples-jvm() {
+    "$root/scripts/verify-samples.sh" --platform desktop "$repo"
+}
+
+samples-ios() {
+    "$root/scripts/verify-samples.sh" --platform ios "$repo"
 }
 
 timings=()

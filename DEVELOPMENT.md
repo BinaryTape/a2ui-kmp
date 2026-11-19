@@ -98,16 +98,18 @@ Actions tab.
 
 ## CI and releases
 
-CI (`.github/workflows/ci.yml`) runs on every push and pull request. First the quick checks:
-`scripts/check-upstream.py` compares `source/` with the commit in `source/UPSTREAM` file by file, the
-generated overlays must be current, and the changelog entry for the version being built must be
-complete. Then one macOS job publishes both builds to `build/repo` (`scripts/verify.sh publish
-requirements`), and four jobs test those artifacts in parallel: upstream's tests, the integration
-tests and the samples on macOS (`scripts/verify.sh upstream-tests`, `integration`, `samples`), and
-the integration tests' Android device part on an emulator, in both passes. A change to Markdown files
-or documentation images (PNG, SVG, JPEG, GIF or WebP in `docs/`; PNG or JPEG in a `screenshots`
-folder) only runs the quick checks, unless it changes README's "Requirements" table. Each
-Gradle build publishes a Build Scan, linked from the job summary.
+CI (`.github/workflows/ci.yml`) runs on every push and pull request. First the quick checks run on
+Linux: `scripts/check-upstream.py` compares `source/` with the commit in `source/UPSTREAM` file by
+file, the generated overlays must be current, and the changelog entry for the version being built
+must be complete. Then a single macOS job publishes both builds to `build/repo` and runs all
+iOS-only simulator checks (`scripts/verify.sh publish requirements upstream-tests-ios
+integration-ios samples-ios`), avoiding repeated macOS VM boots. Two Linux jobs then test those
+exact published artifacts in parallel: desktop and Android host tests (`scripts/verify.sh
+upstream-tests-jvm integration-jvm samples-jvm`) and the integration tests' Android device part on
+an emulator, in both passes. A change to Markdown files, documentation images (PNG, SVG, JPEG, GIF
+or WebP in `docs/`; PNG or JPEG in a `screenshots` folder), or non-build repo metadata only runs the
+quick checks, unless it changes README's "Requirements" table. Each Gradle build publishes a Build
+Scan, linked from the job summary.
 
 To release, set `a2uiKmp` in `gradle/libs.versions.toml`, finish its `CHANGELOG.md`
 entry, and push tag `v<version>`. `.github/workflows/release.yml` checks that the tag, the version
