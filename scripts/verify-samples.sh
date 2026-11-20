@@ -154,4 +154,4 @@ for failure in json.load(sys.stdin).get("testFailures", []):
         exit 1
     fi
 done
-echo "All samples passed on desktop and iOS: ${samples[*]}"
+echo "All samples passed ($platform): ${samples[*]}"
