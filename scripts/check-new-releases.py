@@ -14,7 +14,7 @@ import json, re, urllib.request
 import layout
 
 GOOGLE = "https://dl.google.com/android/maven2"
-CENTRAL = "https://repo1.maven.org/maven2"
+CENTRAL = "https://repo.maven.apache.org/maven2"
 # The official artifacts the two builds follow; every package of target/a2ui-kmp has a2ui-model's
 # version.
 UPSTREAM = {
