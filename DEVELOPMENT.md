@@ -98,16 +98,15 @@ Actions tab.
 
 ## CI and releases
 
-CI (`.github/workflows/ci.yml`) runs on every push and pull request. First the quick checks:
-`scripts/check-upstream.py` compares `source/` with the commit in `source/UPSTREAM` file by file, the
-generated overlays must be current, and the changelog entry for the version being built must be
-complete. Then one macOS job publishes both builds to `build/repo` (`scripts/verify.sh publish
-requirements`), and four jobs test those artifacts in parallel: upstream's tests, the integration
-tests and the samples on macOS (`scripts/verify.sh upstream-tests`, `integration`, `samples`), and
-the integration tests' Android device part on an emulator, in both passes. A change to Markdown files
-or documentation images (PNG, SVG, JPEG, GIF or WebP in `docs/`; PNG or JPEG in a `screenshots`
-folder) only runs the quick checks, unless it changes README's "Requirements" table. Each
-Gradle build publishes a Build Scan, linked from the job summary.
+CI (`.github/workflows/ci.yml`) runs on every push to `main` and on pull requests. The quick
+checks verify the upstream copy, generated overlays and changelog. The publish job builds both
+packages into `build/repo` and checks their requirements. The iOS upstream, integration and sample
+checks run in parallel on macOS using those artifacts. Two Linux jobs run alongside them. One runs
+the desktop and Android host checks, and the other runs the Android emulator tests. The integration
+checks run in both the minimum and all package configurations.
+
+Changes to Markdown or documentation images only run the quick checks, unless they change the
+README requirements table. Each Gradle build publishes a Build Scan linked from the job summary.
 
 To release, set `a2uiKmp` in `gradle/libs.versions.toml`, finish its `CHANGELOG.md`
 entry, and push tag `v<version>`. `.github/workflows/release.yml` checks that the tag, the version

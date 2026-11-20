@@ -7,9 +7,18 @@
 #            samples/build/ios-launch.png); then its UI test presses Book on the Form tab
 #            (screenshot in samples/build/ios-form.png)
 #
-#   scripts/verify-samples.sh [maven repository]
+#   scripts/verify-samples.sh [--platform all|desktop|ios] [maven repository]
 set -euo pipefail
 root="$(cd "$(dirname "$0")/.." && pwd)"
+platform="all"
+if [ "${1:-}" = "--platform" ]; then
+    platform="${2:-}"
+    case "$platform" in
+        all|desktop|ios) ;;
+        *) echo "Unknown platform: $platform (expected all, desktop, or ios)" >&2; exit 1 ;;
+    esac
+    shift 2
+fi
 repo="$(cd "${1:-$root/build/repo}" && pwd)"
 # The samples' settings and their Xcode build phase read the repository from this property.
 export ORG_GRADLE_PROJECT_a2uiRepo="$repo"
@@ -24,6 +33,19 @@ for catalog in "$root/samples/gradle/libs.versions.toml"; do
         exit 1
     fi
 done
+
+if [ "$platform" = "desktop" ]; then
+    samples=()
+    for sample in "$root/samples"; do
+        name="$(basename "$sample")"
+        samples+=("$name")
+        echo "Sample $name: desktop"
+        (cd "$sample" && ./gradlew --quiet --refresh-dependencies \
+            :composeApp:compileKotlinDesktop :composeApp:desktopTest)
+    done
+    echo "All samples passed on desktop: ${samples[*]}"
+    exit 0
+fi
 
 # A standard iPhone simulator (e.g. "iPhone 17 Pro") on the newest iOS runtime the selected Xcode
 # can build for (not newer than its iOS Simulator SDK: a machine can have runtimes of other Xcode
@@ -81,9 +103,15 @@ samples=()
 for sample in "$root/samples"; do
     name="$(basename "$sample")"
     samples+=("$name")
-    echo "Sample $name: desktop and iOS framework"
-    (cd "$sample" && ./gradlew --quiet --refresh-dependencies \
-        :composeApp:compileKotlinDesktop :composeApp:desktopTest :composeApp:linkDebugFrameworkIosSimulatorArm64)
+    if [ "$platform" = "ios" ]; then
+        echo "Sample $name: iOS framework"
+        (cd "$sample" && ./gradlew --quiet --refresh-dependencies \
+            :composeApp:linkDebugFrameworkIosSimulatorArm64)
+    else
+        echo "Sample $name: desktop and iOS framework"
+        (cd "$sample" && ./gradlew --quiet --refresh-dependencies \
+            :composeApp:compileKotlinDesktop :composeApp:desktopTest :composeApp:linkDebugFrameworkIosSimulatorArm64)
+    fi
 
     echo "Sample $name: Xcode app on the simulator"
     derived="$sample/build/xcode"
@@ -126,4 +154,4 @@ for failure in json.load(sys.stdin).get("testFailures", []):
         exit 1
     fi
 done
-echo "All samples passed on desktop and iOS: ${samples[*]}"
+echo "All samples passed ($platform): ${samples[*]}"
