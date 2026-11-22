@@ -6,28 +6,55 @@
     (synced with scripts/sync-upstream.py);
   - a stable Compose Multiplatform release for material3-a2ui, while composeMultiplatformMaterial3
     is a pre-release (README, "Requirements": it moves to the stable release once there is one).
+    Read from the project's GitHub releases: Maven Central answers GitHub-hosted runners with 404 or
+    429 now and then, and the GitHub API does not.
 
 The titles name the version, so each release gets one issue.
 """
-import json, re, urllib.request
+import json, os, re, sys, time, urllib.error, urllib.request
 
 import layout
 
 GOOGLE = "https://dl.google.com/android/maven2"
-CENTRAL = "https://repo.maven.apache.org/maven2"
 # The official artifacts the two builds follow; every package of target/a2ui-kmp has a2ui-model's
 # version.
 UPSTREAM = {
     "androidx.a2ui": f"{GOOGLE}/androidx/a2ui/a2ui-model",
     "material3-a2ui": f"{GOOGLE}/androidx/compose/material3/material3-a2ui",
 }
-COMPOSE_MULTIPLATFORM = f"{CENTRAL}/org/jetbrains/compose/ui/ui"
+# Newest first; pre-releases are marked as such.
+COMPOSE_MULTIPLATFORM_RELEASES = (
+    "https://api.github.com/repos/JetBrains/compose-multiplatform/releases?per_page=100"
+)
+ATTEMPTS = 4
+
+
+def fetch(url: str, headers: dict[str, str] | None = None) -> bytes:
+    """Tries again, after 15, 30 and 60 seconds, when the server is busy (429, 5xx) or does not
+    answer; any other error, such as a 404 for an artifact that moved, fails at once."""
+    for attempt in range(1, ATTEMPTS + 1):
+        try:
+            request = urllib.request.Request(url, headers=headers or {})
+            with urllib.request.urlopen(request, timeout=30) as response:
+                return response.read()
+        except urllib.error.HTTPError as error:
+            if (error.code != 429 and error.code < 500) or attempt == ATTEMPTS:
+                raise
+            reason = f"HTTP {error.code}"
+        except (urllib.error.URLError, TimeoutError) as error:
+            if attempt == ATTEMPTS:
+                raise
+            reason = str(error)
+        delay = 15 * 2 ** (attempt - 1)
+        print(f"{url}: {reason}; trying again in {delay} s", file=sys.stderr)
+        time.sleep(delay)
+    raise AssertionError("unreachable")
 
 
 def versions(artifact: str) -> list[str]:
     """In the order they were published, as maven-metadata.xml lists them."""
-    with urllib.request.urlopen(f"{artifact}/maven-metadata.xml", timeout=30) as response:
-        return re.findall(r"<version>([^<]+)</version>", response.read().decode())
+    metadata = fetch(f"{artifact}/maven-metadata.xml").decode()
+    return re.findall(r"<version>([^<]+)</version>", metadata)
 
 
 def stable_release(version: str) -> tuple[int, ...] | None:
@@ -63,7 +90,12 @@ def compose_multiplatform_release() -> list[dict]:
     if stable_release(current):
         return []
     line = stable_release(current.split("-")[0])[:2]
-    stable = [v for v in versions(COMPOSE_MULTIPLATFORM) if (s := stable_release(v)) and s[:2] >= line]
+    headers = {"Accept": "application/vnd.github+json"}
+    if token := os.environ.get("GH_TOKEN"):
+        headers["Authorization"] = f"Bearer {token}"
+    releases = json.loads(fetch(COMPOSE_MULTIPLATFORM_RELEASES, headers))
+    released = [r["tag_name"].removeprefix("v") for r in releases if not r["prerelease"]]
+    stable = [v for v in released if (s := stable_release(v)) and s[:2] >= line]
     if not stable:
         return []
     version = max(stable, key=stable_release)
