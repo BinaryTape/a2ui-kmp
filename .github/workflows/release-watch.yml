@@ -16,7 +16,8 @@ permissions:
 jobs:
   watch:
     runs-on: ubuntu-24.04
-    timeout-minutes: 5
+    # Room for every request's retries (scripts/check-new-releases.py) to run out.
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
