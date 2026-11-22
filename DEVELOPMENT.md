@@ -93,10 +93,10 @@ Every night `.github/workflows/release-watch.yml` opens an issue for each releas
 (`scripts/check-new-releases.py`): a newer `androidx.a2ui` or `material3-a2ui` on Google's Maven
 repository, with the commands above, or the stable Compose Multiplatform release that
 `material3-a2ui` moves to from its pre-release (read from JetBrains' GitHub releases, since Maven
-Central sometimes refuses GitHub-hosted runners). A busy or unreachable server is tried again three
-times, up to two minutes, before the run fails. Each release gets one issue. GitHub turns off
-scheduled workflows after 60 days without a commit to the repository; turn it back on from the
-Actions tab.
+Central sometimes refuses GitHub-hosted runners). Each request to a busy or unreachable server is
+tried again three times, over about two minutes, before the run fails. Each release gets one issue.
+GitHub turns off scheduled workflows after 60 days without a commit to the repository; turn it back
+on from the Actions tab.
 
 ## CI and releases
 

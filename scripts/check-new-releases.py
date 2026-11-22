@@ -11,7 +11,7 @@
 
 The titles name the version, so each release gets one issue.
 """
-import json, os, re, sys, time, urllib.error, urllib.request
+import http.client, json, os, re, sys, time, urllib.error, urllib.request
 
 import layout
 
@@ -30,8 +30,9 @@ ATTEMPTS = 4
 
 
 def fetch(url: str, headers: dict[str, str] | None = None) -> bytes:
-    """Tries again, after 15, 30 and 60 seconds, when the server is busy (429, 5xx) or does not
-    answer; any other error, such as a 404 for an artifact that moved, fails at once."""
+    """Tries again, after 15, 30 and 60 seconds, when the server is busy (429, 5xx), does not
+    answer or breaks off; any other error, such as a 404 for an artifact that moved, fails at
+    once."""
     for attempt in range(1, ATTEMPTS + 1):
         try:
             request = urllib.request.Request(url, headers=headers or {})
@@ -41,7 +42,8 @@ def fetch(url: str, headers: dict[str, str] | None = None) -> bytes:
             if (error.code != 429 and error.code < 500) or attempt == ATTEMPTS:
                 raise
             reason = f"HTTP {error.code}"
-        except (urllib.error.URLError, TimeoutError) as error:
+        # No answer, or the connection broke while the answer was being read.
+        except (OSError, http.client.HTTPException) as error:
             if attempt == ATTEMPTS:
                 raise
             reason = str(error)
